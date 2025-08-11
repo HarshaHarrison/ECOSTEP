@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Eco Facts & Quiz</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- Navbar: Updated to consistent version -->
+  <nav style="background-color: #2e7d32; display: flex; align-items: center; justify-content: space-between; padding: 10px 20px;">
+    <div style="color: white; font-size: 24px; font-weight: bold;">
+      EcoSteps 🌿
+    </div>
+    <ul style="display: flex; list-style: none; margin: 0; padding: 0;">
+      <li style="margin: 0 15px;"><a href="index.html" style="color: white; text-decoration: none;">🏠 Home</a></li>
+      <li style="margin: 0 15px;"><a href="calculator.html" style="color: white; text-decoration: none;">📋 Calculator</a></li>
+      <li style="margin: 0 15px;"><a href="suggestions.html" style="color: white; text-decoration: none;">💡 Tips</a></li>
+      <li style="margin: 0 15px;"><a href="tracker.html" style="color: white; text-decoration: none;">📈 Tracker</a></li>
+      <li style="margin: 0 15px;"><a href="sentiment.html" style="color: white; text-decoration: none;">🧠 Sentiment</a></li>
+    </ul>
+  </nav>
+
+  <h1>🌱 Eco Facts You Should Know</h1>
+
+  <div id="facts-container"></div>
+
+  <hr>
+  <h2>🌿 Quick Quiz</h2>
+
+  <form id="quizForm"></form>
+
+  <p id="result"></p>
+
+  <script>
+    // FACTS DATA
+    const facts = [
+      "🌎 The Earth’s average temperature has increased by about 1°C since the 19th century.",
+      "🌳 One tree can absorb around 22 kg of CO₂ per year!",
+      "🛢️ Producing plastic uses a lot of fossil fuels and energy. Reduce single-use plastics!",
+      "🌊 Oceans absorb about 30% of the CO₂ that humans produce.",
+      "🌿 Recycling one aluminum can saves enough energy to run a TV for 3 hours.",
+      "🚲 Biking instead of driving just once a day can reduce your carbon emissions by 67%.",
+      "♻️ Glass can be recycled endlessly without loss in quality or purity.",
+      "💧 Turning off the tap while brushing your teeth can save up to 8 gallons of water per day.",
+      "🧃 It can take up to 500 years for a plastic bottle to decompose in a landfill.",
+      "🌞 Solar energy is the most abundant energy source on Earth – 173,000 terawatts strike the Earth continuously.",
+      "🗑️ Food waste in landfills generates methane – a greenhouse gas 25 times more potent than CO₂.",
+      "🐝 Bees are vital to food production – 1 in 3 bites of food depends on pollinators like bees.",
+      "📦 Cardboard is one of the easiest materials to recycle and reuses less energy than making new boxes.",
+      "🔥 Forests cover 31% of the land area on our planet and are home to 80% of Earth’s land animals.",
+      "🌬️ Air pollution kills an estimated 7 million people worldwide every year, according to WHO."
+    ];
+
+    // QUIZ DATA
+    const quizData = [
+      {
+        question: "What gas do trees absorb?",
+        options: ["CO2", "O2"],
+        answer: "CO2"
+      },
+      {
+        question: "Which of these is eco-friendly?",
+        options: ["Plastic", "Cloth Bag"],
+        answer: "Cloth Bag"
+      },
+      {
+        question: "What saves more water?",
+        options: ["Bathing", "Showering"],
+        answer: "Showering"
+      },
+      {
+        question: "Which is renewable?",
+        options: ["Coal", "Solar Energy"],
+        answer: "Solar Energy"
+      },
+      {
+        question: "Which activity helps reduce carbon footprint?",
+        options: ["Driving alone", "Carpooling"],
+        answer: "Carpooling"
+      },
+      {
+        question: "Which is a biodegradable item?",
+        options: ["Banana Peel", "Plastic Straw"],
+        answer: "Banana Peel"
+      },
+      {
+        question: "Which energy source is clean?",
+        options: ["Wind", "Diesel"],
+        answer: "Wind"
+      },
+      {
+        question: "What should you do with old clothes?",
+        options: ["Throw away", "Donate"],
+        answer: "Donate"
+      },
+      {
+        question: "What harms marine life the most?",
+        options: ["Paper", "Plastic waste"],
+        answer: "Plastic waste"
+      },
+      {
+        question: "What does 'reduce' mean in 3Rs?",
+        options: ["Use more", "Use less"],
+        answer: "Use less"
+      }
+    ];
+
+    // DISPLAY RANDOM 3 FACTS
+    function displayRandomFacts() {
+      const shuffled = facts.sort(() => 0.5 - Math.random()).slice(0, 3);
+      const container = document.getElementById("facts-container");
+      container.innerHTML = "";
+      shuffled.forEach(fact => {
+        const card = document.createElement("div");
+        card.className = "fact-card";
+        card.innerHTML = `<p>${fact}</p>`;
+        container.appendChild(card);
+      });
+    }
+
+    // DISPLAY 2 RANDOM QUESTIONS
+    function displayQuiz() {
+      const selectedQuestions = quizData.sort(() => 0.5 - Math.random()).slice(0, 2);
+      const form = document.getElementById("quizForm");
+      form.innerHTML = "";
+
+      selectedQuestions.forEach((q, index) => {
+        const label = document.createElement("label");
+        label.innerText = q.question;
+        form.appendChild(label);
+        form.appendChild(document.createElement("br"));
+
+        q.options.forEach(option => {
+          const input = document.createElement("input");
+          input.type = "radio";
+          input.name = "q" + index;
+          input.value = option;
+          form.appendChild(input);
+          form.appendChild(document.createTextNode(" " + option));
+          form.appendChild(document.createElement("br"));
+        });
+
+        form.appendChild(document.createElement("br"));
+      });
+
+      const button = document.createElement("button");
+      button.type = "button";
+      button.innerText = "Submit Quiz";
+      button.onclick = () => checkAnswers(selectedQuestions);
+      form.appendChild(button);
+    }
+
+    // CHECK QUIZ ANSWERS
+    function checkAnswers(selectedQuestions) {
+      let score = 0;
+      selectedQuestions.forEach((q, index) => {
+        const selected = document.querySelector(`input[name="q${index}"]:checked`);
+        if (selected && selected.value === q.answer) score++;
+      });
+      document.getElementById("result").innerText = "Your score: " + score + "/" + selectedQuestions.length + " 🌟";
+    }
+
+    // INITIALIZE PAGE
+    displayRandomFacts();
+    displayQuiz();
+  </script>
+</body>
+</html>
+
+
+

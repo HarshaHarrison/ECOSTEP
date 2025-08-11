@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Carbon Footprint Calculator - EcoSteps</title>
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+
+    <!-- Unified Navbar -->
+    <div class="navbar">
+      <a href="index.html">🏠 Home</a>
+      <a href="calculator.html">🧮 Calculator</a>
+      <a href="suggestions.html">💡 Tips</a>
+      <a href="tracker.html">📈 Tracker</a>
+      <a href="facts.html">📊 Quiz</a>
+      <a href="sentiment.html">🧠 Sentiment</a>
+  </div>
+    
+
+    <header>
+        <h1>Carbon Footprint Calculator</h1>
+    </header>
+
+    <section>
+        <form id="carbonForm">
+            <label for="electricity">Electricity Usage (kWh/month):</label>
+            <input type="number" id="electricity" required><br><br>
+
+            <label for="car">Car Travel (km/week):</label>
+            <input type="number" id="car" required><br><br>
+
+            <label for="flights">Flights per Year:</label>
+            <input type="number" id="flights" required><br><br>
+
+            <button type="button" onclick="calculateCarbon()">Calculate</button>
+        </form>
+
+        <h3 id="result"></h3>
+    </section>
+
+    <script>
+        function calculateCarbon() {
+            const electricity = parseFloat(document.getElementById('electricity').value) || 0;
+            const car = parseFloat(document.getElementById('car').value) || 0;
+            const flights = parseFloat(document.getElementById('flights').value) || 0;
+
+            // Simplified calculation (can be enhanced with AI later)
+            const total = (electricity * 0.4) + (car * 0.21) + (flights * 250);
+
+            document.getElementById('result').innerText =
+                `Your estimated carbon footprint is ${total.toFixed(2)} kg CO₂/month.`;
+        }
+    </script>
+
+</body>
+</html>
+

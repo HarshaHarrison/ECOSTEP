@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>EcoSteps - Tracker</title>
+  <link rel="stylesheet" href="css/styles.css" />
+  <!-- Firebase SDKs -->
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+</head>
+<body>
+
+  <!-- Navbar: Unified across all pages -->
+  <nav style="background-color: #2e7d32; display: flex; align-items: center; justify-content: space-between; padding: 10px 20px;">
+    <div style="color: white; font-size: 24px; font-weight: bold;">
+      EcoSteps 🌿
+    </div>
+    <ul style="display: flex; list-style: none; margin: 0; padding: 0;">
+      <li style="margin: 0 15px;"><a href="index.html" style="color: white; text-decoration: none;">🏠 Home</a></li>
+      <li style="margin: 0 15px;"><a href="calculator.html" style="color: white; text-decoration: none;">📋 Calculator</a></li>
+      <li style="margin: 0 15px;"><a href="suggestions.html" style="color: white; text-decoration: none;">💡 Tips</a></li>
+      <li style="margin: 0 15px;"><a href="tracker.html" style="color: white; text-decoration: none;">📈 Tracker</a></li>
+      <li style="margin: 0 15px;"><a href="facts.html" style="color: white; text-decoration: none;">📚 Quiz</a></li>
+      <li style="margin: 0 15px;"><a href="sentiment.html" style="color: white; text-decoration: none;">🧠 Sentiment</a></li>
+    </ul>
+  </nav>
+
+  <main>
+    <section class="tracker-section">
+      <h2>Your Carbon Footprint Over Time</h2>
+      <p>Log your emissions to see your progress toward a greener lifestyle.</p>
+
+      <!-- Form to log data -->
+      <form id="log-form">
+        <label>Date:
+          <input type="date" id="date" required />
+        </label>
+        <label>Carbon Emission (kg CO₂):
+          <input type="number" id="emission" min="0" required />
+        </label>
+        <button type="submit">Add Entry</button>
+      </form>
+
+      <!-- Display entries -->
+      <table id="log-table" style="margin-top: 20px; width: 100%; border-collapse: collapse;">
+        <thead>
+          <tr style="background-color: #a5d6a7;">
+            <th style="padding: 8px; border: 1px solid #4caf50;">Date</th>
+            <th style="padding: 8px; border: 1px solid #4caf50;">Emission (kg CO₂)</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+
+      <!-- Auth controls -->
+      <div id="auth-section" style="margin-top: 20px;">
+        <button id="login-btn" style="background-color: #4caf50; color: white; border: none; padding: 10px 15px; cursor: pointer;">Login with Google</button>
+        <button id="logout-btn" style="display:none; background-color: #d32f2f; color: white; border: none; padding: 10px 15px; cursor: pointer;">Logout</button>
+        <p id="user-info" style="color: green; margin-top: 10px;"></p>
+      </div>
+    </section>
+  </main>
+
+  <footer style="text-align: center; margin-top: 40px; padding: 15px; background-color: #e8f5e9; color: #2e7d32;">
+    <p>© 2025 EcoSteps. All rights reserved.</p>
+  </footer>
+
+  <script>
+    // Your Firebase configuration
+    const firebaseConfig = {
+      apiKey: "AIzaSyD4_Om1zCUrnrOim_OnWnwdMVMHNg3DvHQ",
+      authDomain: "ecosteps-259a9.firebaseapp.com",
+      projectId: "ecosteps-259a9",
+      storageBucket: "ecosteps-259a9.firebasestorage.app",
+      messagingSenderId: "199603477584",
+      appId: "1:199603477584:web:5dec5304cf5daf738e4555",
+      measurementId: "G-QSSPSXEK2W"
+    };
+
+    // Initialize Firebase
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+    const db = firebase.firestore();
+
+    const form = document.getElementById('log-form');
+    const tableBody = document.querySelector('#log-table tbody');
+
+    const loginBtn = document.getElementById('login-btn');
+    const logoutBtn = document.getElementById('logout-btn');
+    const userInfo = document.getElementById('user-info');
+
+    // Manage UI on auth state change
+    auth.onAuthStateChanged(user => {
+      if (user) {
+        userInfo.textContent = `Logged in as: ${user.displayName || user.email}`;
+        loginBtn.style.display = 'none';
+        logoutBtn.style.display = 'inline-block';
+        loadEntries(user.uid);
+      } else {
+        userInfo.textContent = 'Not logged in';
+        loginBtn.style.display = 'inline-block';
+        logoutBtn.style.display = 'none';
+        tableBody.innerHTML = '';  // clear table
+      }
+    });
+
+    // Login button action (Google sign-in)
+    loginBtn.addEventListener('click', () => {
+      const provider = new firebase.auth.GoogleAuthProvider();
+      auth.signInWithPopup(provider).catch(error => {
+        console.error('Login error:', error);
+        alert('Login failed. Please try again.');
+      });
+    });
+
+    // Logout button action
+    logoutBtn.addEventListener('click', () => {
+      auth.signOut().catch(error => {
+        console.error('Logout error:', error);
+        alert('Logout failed. Please try again.');
+      });
+    });
+
+    // Add new emission entry
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const user = auth.currentUser;
+      if (!user) {
+        alert('Please log in to add entries.');
+        return;
+      }
+
+      const date = document.getElementById('date').value;
+      const emission = parseFloat(document.getElementById('emission').value);
+
+      if (!date || isNaN(emission) || emission < 0) {
+        alert('Please enter valid date and emission value.');
+        return;
+      }
+
+      try {
+        await db.collection('users').doc(user.uid).collection('emissions').add({
+          date,
+          emission,
+          timestamp: firebase.firestore.FieldValue.serverTimestamp()
+        });
+
+        appendEntryToTable({ date, emission });
+        form.reset();
+      } catch (error) {
+        console.error('Error adding entry:', error);
+        alert('Failed to save entry. Please try again.');
+      }
+    });
+
+    // Load user's saved emissions on login
+    async function loadEntries(uid) {
+      tableBody.innerHTML = ''; // clear current rows
+
+      try {
+        const snapshot = await db
+          .collection('users')
+          .doc(uid)
+          .collection('emissions')
+          .orderBy('date')
+          .get();
+
+        snapshot.forEach(doc => {
+          const data = doc.data();
+          appendEntryToTable(data);
+        });
+      } catch (error) {
+        console.error('Error loading entries:', error);
+      }
+    }
+
+    // Append a single entry row to table
+    function appendEntryToTable(entry) {
+      const row = document.createElement('tr');
+      row.style.border = '1px solid #4caf50';
+      row.innerHTML = `
+        <td style="padding: 8px; border: 1px solid #4caf50;">${entry.date}</td>
+        <td style="padding: 8px; border: 1px solid #4caf50;">${entry.emission}</td>
+      `;
+      tableBody.appendChild(row);
+    }
+  </script>
+</body>
+</html>

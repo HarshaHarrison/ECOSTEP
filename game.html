@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>EcoSteps - Awareness Game</title>
+  <link rel="stylesheet" href="css/styles.css">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Poppins', sans-serif;
+      color: white;
+      background: linear-gradient(-45deg, #2e8b57, #228b22, #6b8e23, #3cb371);
+      background-size: 400% 400%;
+      animation: gradientBG 15s ease infinite;
+      min-height: 100vh;
+    }
+
+    @keyframes gradientBG {
+      0% {background-position: 0% 50%;}
+      50% {background-position: 100% 50%;}
+      100% {background-position: 0% 50%;}
+    }
+
+    .navbar {
+      background-color: rgba(0, 0, 0, 0.5);
+      overflow: hidden;
+      padding: 10px 0;
+      text-align: center;
+    }
+
+    .navbar a {
+      color: white;
+      padding: 14px 20px;
+      text-decoration: none;
+      font-weight: 600;
+      transition: background-color 0.3s ease;
+    }
+
+    .navbar a:hover {
+      background-color: rgba(255, 255, 255, 0.2);
+    }
+
+    header {
+      text-align: center;
+      margin-top: 30px;
+    }
+
+    h1 {
+      font-size: 2.5rem;
+      margin-bottom: 5px;
+    }
+
+    main {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 30px;
+    }
+
+    .quiz-container {
+      background-color: rgba(0, 0, 0, 0.4);
+      padding: 20px;
+      border-radius: 15px;
+      margin-bottom: 20px;
+      width: 90%;
+      max-width: 500px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.4);
+    }
+
+    .quiz-container p {
+      font-size: 1.1rem;
+    }
+
+    button {
+      display: block;
+      width: 100%;
+      padding: 10px;
+      margin: 10px 0;
+      font-size: 1rem;
+      background-color: #90ee90;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: transform 0.2s ease, background-color 0.3s;
+    }
+
+    button:hover {
+      background-color: #76c776;
+      transform: scale(1.03);
+    }
+
+    button:active {
+      transform: scale(0.97);
+    }
+
+    #score {
+      font-size: 1.3rem;
+      font-weight: bold;
+      margin-top: 20px;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Navigation bar -->
+  <div class="navbar">
+    <a href="index.html">Home</a>
+    <a href="calculator.html">Calculator</a>
+    <a href="suggestions.html">Tips</a>
+    <a href="facts.html">Facts</a>
+    <a href="game.html">Game</a>
+  </div>
+
+  <div style="margin-top: 20px;"></div>
+
+  <header>
+    <h1>Awareness Challenge</h1>
+    <p>Test your knowledge about carbon footprint!</p>
+  </header>
+
+  <main>
+    <div class="quiz-container">
+      <p><strong>Q1:</strong> What is a common source of CO₂ emissions?</p>
+      <button onclick="checkAnswer(this, true)">Driving a gasoline car 🚗</button>
+      <button onclick="checkAnswer(this, false)">Using solar panels ☀️</button>
+    </div>
+
+    <div class="quiz-container">
+      <p><strong>Q2:</strong> Which of these is eco-friendly?</p>
+      <button onclick="checkAnswer(this, false)">Plastic bag 🛍️</button>
+      <button onclick="checkAnswer(this, true)">Cloth bag 👜</button>
+    </div>
+
+    <p id="score">Score: 0</p>
+  </main>
+
+  <script>
+    let score = 0;
+
+    function checkAnswer(button, isCorrect) {
+      if (isCorrect) {
+        score += 1;
+        alert("✅ Correct!");
+      } else {
+        alert("❌ Oops! Try again.");
+      }
+      document.getElementById("score").innerText = "Score: " + score;
+    }
+  </script>
+
+</body>
+</html>

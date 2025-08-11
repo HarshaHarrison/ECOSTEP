@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>EcoSentiment Analyzer - EcoSteps</title>
+  <link rel="stylesheet" href="css/styles.css" />
+</head>
+<body>
+  <div class="navbar">
+      <a href="index.html">🏠 Home</a>
+      <a href="calculator.html">🧮 Calculator</a>
+      <a href="suggestions.html">💡 Tips</a>
+      <a href="tracker.html">📈 Tracker</a>
+      <a href="facts.html">📊 Quiz</a>
+      <a href="sentiment.html">🧠 Sentiment</a>
+  </div>
+
+  <header>
+    <h1>EcoSentiment Analyzer</h1>
+  </header>
+
+  <section>
+    <p>Write your thoughts about climate change or your eco habits:</p>
+    <textarea id="userInput" rows="5" cols="50" placeholder="Type here..."></textarea><br><br>
+    <button onclick="analyzeSentiment()">Analyze Sentiment</button>
+
+    <h3 id="sentimentResult"></h3>
+  </section>
+
+  <script>
+    function analyzeSentiment() {
+      const text = document.getElementById("userInput").value.toLowerCase();
+      const positiveWords = ["good", "great", "happy", "positive", "clean", "green", "eco"];
+      const negativeWords = ["bad", "sad", "pollution", "waste", "dirty", "negative"];
+
+      let score = 0;
+
+      positiveWords.forEach(word => {
+        if (text.includes(word)) score++;
+      });
+
+      negativeWords.forEach(word => {
+        if (text.includes(word)) score--;
+      });
+
+      let result = "Neutral";
+
+      if (score > 0) result = "Positive 😊";
+      else if (score < 0) result = "Negative 😟";
+
+      document.getElementById("sentimentResult").innerText = 
+        `Your sentiment is: ${result}`;
+    }
+  </script>
+</body>
+</html>
