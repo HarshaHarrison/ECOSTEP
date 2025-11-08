@@ -4,9 +4,15 @@
   <meta charset="UTF-8">
   <title>Sign Up - EcoSteps</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+  
+  <!-- Firebase SDKs -->
   <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+  
+  <!-- Your Firebase Config -->
   <script src="firebase-config.js"></script>
+
   <style>
     body {
       margin: 0;
@@ -14,7 +20,6 @@
       background: linear-gradient(to right, #b7e3cc, #fcd4d4);
     }
 
-    /* Header with logo */
     .navbar {
       background-color: #2f7d32;
       color: white;
@@ -25,7 +30,6 @@
       font-weight: bold;
     }
 
-    /* Form container */
     .form-container {
       max-width: 400px;
       margin: 60px auto;
@@ -39,7 +43,7 @@
       color: #2f7d32;
       margin-bottom: 20px;
     }
-    input {
+    input, select {
       width: 100%;
       padding: 12px;
       margin: 10px 0;
@@ -76,14 +80,24 @@
 </head>
 <body>
 
-  <!-- Header with logo -->
   <div class="navbar">🌱 EcoSteps</div>
 
-  <!-- Signup Form -->
   <div class="form-container">
     <h2>Create Account</h2>
     <input type="email" id="signupEmail" placeholder="Email" required>
     <input type="password" id="signupPassword" placeholder="Password" required>
+
+    <select id="userType" required>
+      <option value="" disabled selected>Select User Type</option>
+      <option value="student">Student</option>
+      <option value="it_professional">IT Professional</option>
+      <option value="educator">Educator / Teacher</option>
+      <option value="corporate">Non-IT / Office Employee</option>
+      <option value="environmentalist">Environmental Enthusiast / Activist</option>
+      <option value="researcher">Researcher / Scientist</option>
+      <option value="other">Other / General Public</option>
+    </select>
+
     <button onclick="signUp()">Sign Up</button>
     <p>Already have an account? <a href="login.html">Login</a></p>
   </div>
@@ -92,8 +106,21 @@
     function signUp() {
       const email = document.getElementById('signupEmail').value;
       const password = document.getElementById('signupPassword').value;
+      const userType = document.getElementById('userType').value;
+
+      if (!userType) {
+        alert("Please select your user type!");
+        return;
+      }
 
       firebase.auth().createUserWithEmailAndPassword(email, password)
+        .then(userCredential => {
+          const user = userCredential.user;
+          return firebase.firestore().collection("users").doc(user.uid).set({
+            email: email,
+            userType: userType
+          });
+        })
         .then(() => {
           alert("Account created successfully!");
           window.location.href = "login.html";
@@ -106,5 +133,3 @@
 
 </body>
 </html>
-
-
