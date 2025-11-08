@@ -2,55 +2,155 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>EcoSentiment Analyzer - EcoSteps</title>
-  <link rel="stylesheet" href="css/styles.css" />
+  <title>EcoSentiment Analyzer 🌿 (Word-Based Smart Model)</title>
+  <style>
+    body {
+      font-family: 'Poppins', sans-serif;
+      text-align: center;
+      background: #f0f4f8;
+      transition: background 0.6s ease-in-out;
+    }
+    .navbar {
+      background-color: #2e7d32;
+      padding: 10px;
+    }
+    .navbar a {
+      color: white;
+      padding: 10px 15px;
+      text-decoration: none;
+      font-weight: 500;
+    }
+    .navbar a:hover {
+      background-color: #1b5e20;
+      border-radius: 8px;
+    }
+    textarea {
+      width: 65%;
+      height: 120px;
+      border-radius: 10px;
+      border: 1px solid #ccc;
+      padding: 10px;
+      font-size: 16px;
+      resize: none;
+    }
+    button {
+      background-color: #43a047;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 8px;
+      font-size: 16px;
+      cursor: pointer;
+      margin: 8px;
+      transition: background 0.3s;
+    }
+    button:hover { background-color: #2e7d32; }
+    #sentimentResult {
+      margin-top: 20px;
+      font-size: 22px;
+      font-weight: bold;
+    }
+    #ecoMessage {
+      margin-top: 10px;
+      font-size: 18px;
+      color: #333;
+      font-style: italic;
+    }
+    .examples {
+      margin: 20px auto;
+      width: 60%;
+      background: #e8f5e9;
+      padding: 15px;
+      border-radius: 12px;
+    }
+    #wordAnalysis {
+      background: #fff;
+      margin: 20px auto;
+      width: 60%;
+      padding: 15px;
+      border-radius: 10px;
+      text-align: left;
+      border-left: 5px solid #43a047;
+      font-size: 16px;
+    }
+  </style>
 </head>
+
 <body>
   <div class="navbar">
-      <a href="index.html">🏠 Home</a>
-      <a href="calculator.html">🧮 Calculator</a>
-      <a href="suggestions.html">💡 Tips</a>
-      <a href="tracker.html">📈 Tracker</a>
-      <a href="facts.html">📊 Quiz</a>
-      <a href="sentiment.html">🧠 Sentiment</a>
+    <a href="index.html">🏠 Home</a>
+    <a href="calculator.html">🧮 Calculator</a>
+    <a href="suggestions.html">💡 Tips</a>
+    <a href="tracker.html">📈 Tracker</a>
+    <a href="facts.html">📊 Quiz</a>
+    <a href="sentiment.html">🧠 Sentiment</a>
   </div>
 
-  <header>
-    <h1>EcoSentiment Analyzer</h1>
-  </header>
+  <h1>EcoSentiment Analyzer 🌿</h1>
+  <p>Write your thoughts about climate change or your eco habits below:</p>
 
-  <section>
-    <p>Write your thoughts about climate change or your eco habits:</p>
-    <textarea id="userInput" rows="5" cols="50" placeholder="Type here..."></textarea><br><br>
-    <button onclick="analyzeSentiment()">Analyze Sentiment</button>
+  <textarea id="userInput" placeholder="Type your thoughts here..."></textarea><br>
+  <button onclick="analyzeSentiment()">Analyze Sentiment</button>
 
-    <h3 id="sentimentResult"></h3>
-  </section>
+  <h3 id="sentimentResult"></h3>
+  <p id="ecoMessage"></p>
+  <div id="wordAnalysis"></div>
+
+  
 
   <script>
+    const ecoPos = ["green","clean","recycle","happy","eco","plant","renewable","save","hope","solar","positive","good","love","great","improve"];
+    const ecoNeg = ["pollution","waste","dirty","sad","bad","angry","frustrated","deforestation","plastic","problem","hate","terrible","disappointed","toxic"];
+
+    function insertExample(text) {
+      document.getElementById("userInput").value = text;
+    }
+
     function analyzeSentiment() {
-      const text = document.getElementById("userInput").value.toLowerCase();
-      const positiveWords = ["good", "great", "happy", "positive", "clean", "green", "eco"];
-      const negativeWords = ["bad", "sad", "pollution", "waste", "dirty", "negative"];
+      const text = document.getElementById("userInput").value.toLowerCase().trim();
+      const result = document.getElementById("sentimentResult");
+      const message = document.getElementById("ecoMessage");
+      const analysis = document.getElementById("wordAnalysis");
 
+      if (!text) {
+        result.innerText = "Please type something first!";
+        return;
+      }
+
+      // Word-based scoring
       let score = 0;
+      const foundPos = ecoPos.filter(word => text.includes(word));
+      const foundNeg = ecoNeg.filter(word => text.includes(word));
 
-      positiveWords.forEach(word => {
-        if (text.includes(word)) score++;
-      });
+      score += foundPos.length * 1.2;  // stronger impact for positive words
+      score -= foundNeg.length * 1.5;  // stronger penalty for negative words
 
-      negativeWords.forEach(word => {
-        if (text.includes(word)) score--;
-      });
+      // Normalize
+      const normalized = 1 / (1 + Math.exp(-score / 3)); // logistic scale 0–1
 
-      let result = "Neutral";
+      let sentiment, bgColor, msg;
+      if (normalized > 0.66) {
+        sentiment = "Positive 😊";
+        bgColor = "#c8f7c5";
+        msg = "Wonderful! Your eco enthusiasm is inspiring 🌱";
+      } else if (normalized < 0.4) {
+        sentiment = "Negative 😟";
+        bgColor = "#f7c5c5";
+        msg = "Don’t worry — awareness is the first step to action 💚";
+      } else {
+        sentiment = "Neutral 😐";
+        bgColor = "#f0f4f8";
+        msg = "Your eco mindset is balanced — every small step counts 🌍";
+      }
 
-      if (score > 0) result = "Positive 😊";
-      else if (score < 0) result = "Negative 😟";
+      document.body.style.background = bgColor;
+      result.innerText = `Sentiment: ${sentiment} (Score: ${(normalized*100).toFixed(2)}%)`;
+      message.innerText = msg;
 
-      document.getElementById("sentimentResult").innerText = 
-        `Your sentiment is: ${result}`;
+      // Word Analysis
+     
     }
   </script>
 </body>
 </html>
+
