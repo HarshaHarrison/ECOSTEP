@@ -9,10 +9,12 @@
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+  <!-- Chart.js CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
 
-  <!-- Navbar: Unified across all pages -->
+  <!-- Navbar -->
   <nav style="background-color: #2e7d32; display: flex; align-items: center; justify-content: space-between; padding: 10px 20px;">
     <div style="color: white; font-size: 24px; font-weight: bold;">
       EcoSteps 🌿
@@ -32,14 +34,16 @@
       <h2>Your Carbon Footprint Over Time</h2>
       <p>Log your emissions to see your progress toward a greener lifestyle.</p>
 
+      <!-- Chart for visual trend -->
+      <canvas id="emissionChart" style="max-width: 100%; height: 300px; margin-bottom: 30px;"></canvas>
+
       <!-- Form to log data -->
       <form id="log-form">
         <label>Date:
           <input type="date" id="date" required />
         </label>
         <label>Carbon Emission (tons CO₂):
-          <input type="number" id="emission" min="0" step="0.01" required />
-
+          <input type="number" id="emission" min="0" step="any" required />
         </label>
         <button type="submit">Add Entry</button>
       </form>
@@ -69,7 +73,7 @@
   </footer>
 
   <script>
-    // Your Firebase configuration
+    // Firebase config
     const firebaseConfig = {
       apiKey: "AIzaSyD4_Om1zCUrnrOim_OnWnwdMVMHNg3DvHQ",
       authDomain: "ecosteps-259a9.firebaseapp.com",
@@ -92,22 +96,74 @@
     const logoutBtn = document.getElementById('logout-btn');
     const userInfo = document.getElementById('user-info');
 
-    // Manage UI on auth state change
+    // Chart.js initialization
+    const ctx = document.getElementById('emissionChart').getContext('2d');
+    const myChart = new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: [],
+        datasets: [{
+          label: 'Carbon Emission (tons CO₂)',
+          data: [],
+          backgroundColor: 'rgba(46, 125, 50, 0.2)',
+          borderColor: 'rgba(46, 125, 50, 1)',
+          borderWidth: 2,
+          tension: 0.3,
+          fill: true,
+          pointRadius: 5,
+          pointHoverRadius: 7
+        }]
+      },
+      options: {
+        responsive: true,
+        scales: {
+          x: { title: { display: true, text: 'Date' } },
+          y: { title: { display: true, text: 'Emission (tons CO₂)' }, beginAtZero: true }
+        },
+        plugins: {
+          legend: { display: true }
+        }
+      }
+    });
+
+    // Real-time UI updates on auth state change
     auth.onAuthStateChanged(user => {
-      if (user) {
+      if(user){
         userInfo.textContent = `Logged in as: ${user.displayName || user.email}`;
         loginBtn.style.display = 'none';
         logoutBtn.style.display = 'inline-block';
-        loadEntries(user.uid);
+
+        // Real-time listener for emissions
+        db.collection("users").doc(user.uid)
+          .collection("emissions")
+          .orderBy("date")
+          .onSnapshot(snapshot => {
+            tableBody.innerHTML = '';
+            const dates = [];
+            const emissions = [];
+            snapshot.forEach(doc => {
+              const data = doc.data();
+              appendEntryToTable(data);
+              dates.push(data.date);
+              emissions.push(data.emission);
+            });
+            // Update Chart.js data
+            myChart.data.labels = dates;
+            myChart.data.datasets[0].data = emissions;
+            myChart.update();
+          });
       } else {
         userInfo.textContent = 'Not logged in';
         loginBtn.style.display = 'inline-block';
         logoutBtn.style.display = 'none';
-        tableBody.innerHTML = '';  // clear table
+        tableBody.innerHTML = '';
+        myChart.data.labels = [];
+        myChart.data.datasets[0].data = [];
+        myChart.update();
       }
     });
 
-    // Login button action (Google sign-in)
+    // Google login
     loginBtn.addEventListener('click', () => {
       const provider = new firebase.auth.GoogleAuthProvider();
       auth.signInWithPopup(provider).catch(error => {
@@ -116,7 +172,7 @@
       });
     });
 
-    // Logout button action
+    // Logout
     logoutBtn.addEventListener('click', () => {
       auth.signOut().catch(error => {
         console.error('Logout error:', error);
@@ -129,7 +185,7 @@
       e.preventDefault();
 
       const user = auth.currentUser;
-      if (!user) {
+      if(!user){
         alert('Please log in to add entries.');
         return;
       }
@@ -137,7 +193,7 @@
       const date = document.getElementById('date').value;
       const emission = parseFloat(document.getElementById('emission').value);
 
-      if (!date || isNaN(emission) || emission < 0) {
+      if(!date || isNaN(emission) || emission < 0){
         alert('Please enter valid date and emission value.');
         return;
       }
@@ -148,38 +204,15 @@
           emission,
           timestamp: firebase.firestore.FieldValue.serverTimestamp()
         });
-
-        appendEntryToTable({ date, emission });
         form.reset();
-      } catch (error) {
+      } catch(error){
         console.error('Error adding entry:', error);
         alert('Failed to save entry. Please try again.');
       }
     });
 
-    // Load user's saved emissions on login
-    async function loadEntries(uid) {
-      tableBody.innerHTML = ''; // clear current rows
-
-      try {
-        const snapshot = await db
-          .collection('users')
-          .doc(uid)
-          .collection('emissions')
-          .orderBy('date')
-          .get();
-
-        snapshot.forEach(doc => {
-          const data = doc.data();
-          appendEntryToTable(data);
-        });
-      } catch (error) {
-        console.error('Error loading entries:', error);
-      }
-    }
-
-    // Append a single entry row to table
-    function appendEntryToTable(entry) {
+    // Append row to table
+    function appendEntryToTable(entry){
       const row = document.createElement('tr');
       row.style.border = '1px solid #4caf50';
       row.innerHTML = `
