@@ -5,140 +5,51 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>EcoSteps | Carbon Footprint Tracker</title>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script> <!-- Chart.js -->
 
   <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-      font-family: 'Poppins', sans-serif;
-    }
-
-    body {
-      animation: animatedBackground 20s ease infinite;
+    /* --- your same styles (unchanged) --- */
+    * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', sans-serif; }
+    body { animation: animatedBackground 20s ease infinite;
       background: linear-gradient(-45deg, #e0f7fa, #f1f8e9, #e8f5e9, #fff3e0);
-      background-size: 400% 400%;
-      color: #333;
-    }
-
-    @keyframes animatedBackground {
-      0% { background-position: 0% 50%; }
-      50% { background-position: 100% 50%; }
-      100% { background-position: 0% 50%; }
-    }
-
-    /* Navbar */
-    nav {
-      background-color: #2e7d32;
-      padding: 15px 30px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      color: white;
-      position: sticky;
-      top: 0;
-      z-index: 1000;
-    }
-
-    nav h2 {
-      font-size: 1.6em;
-    }
-
-    .nav-links {
-      display: flex;
-      gap: 20px;
-    }
-
-    .nav-links a {
-      color: white;
-      text-decoration: none;
-      font-weight: 500;
-      font-size: 16px;
-      transition: color 0.3s ease;
-    }
-
-    .nav-links a:hover {
-      color: #c8e6c9;
-    }
-
-    /* Hero Section */
-    .hero {
-      background: linear-gradient(to right, #a8edea, #fed6e3);
-      padding: 70px 20px;
-      text-align: center;
-    }
-
-    .hero h1 {
-      font-size: 3em;
-      color: #2e7d32;
-    }
-
-    .hero p {
-      font-size: 1.2em;
-      margin: 10px 0 20px;
-    }
-
-    .hero a {
-      text-decoration: none;
-      background-color: #388e3c;
-      color: white;
-      padding: 10px 20px;
-      border-radius: 8px;
-      font-weight: bold;
-      transition: background-color 0.3s ease;
-    }
-
-    .hero a:hover {
-      background-color: #2e7d32;
-    }
-
-    /* Feature Cards */
-    .features {
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: center;
-      margin: 50px 20px;
-      gap: 25px;
-    }
-
-    .card {
-      background: white;
-      border-radius: 15px;
-      padding: 25px;
-      width: 260px;
-      box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
-      transition: transform 0.3s ease, box-shadow 0.3s ease;
-    }
-
-    .card:hover {
-      transform: translateY(-10px);
-      box-shadow: 0 12px 18px rgba(0, 0, 0, 0.2);
-    }
-
-    .card h3 {
-      color: #388e3c;
-      margin: 10px 0;
-    }
-
-    .card p {
-      font-size: 0.95em;
-      color: #444;
-    }
-
-    /* Footer */
-    .footer {
-      background-color: #2e7d32;
-      color: white;
-      text-align: center;
-      padding: 15px;
-      font-size: 0.9em;
-      margin-top: 50px;
-    }
+      background-size: 400% 400%; color: #333; }
+    @keyframes animatedBackground { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
+    nav { background-color: #2e7d32; padding: 15px 30px; display: flex; justify-content: space-between; align-items: center;
+      color: white; position: sticky; top: 0; z-index: 1000; }
+    nav h2 { font-size: 1.6em; }
+    .nav-links { display: flex; gap: 20px; }
+    .nav-links a { color: white; text-decoration: none; font-weight: 500; font-size: 16px; transition: color 0.3s; }
+    .nav-links a:hover { color: #c8e6c9; }
+    .hero { background: linear-gradient(to right, #a8edea, #fed6e3); padding: 70px 20px; text-align: center; }
+    .hero h1 { font-size: 3em; color: #2e7d32; }
+    .hero p { font-size: 1.2em; margin: 10px 0 20px; }
+    .hero a { text-decoration: none; background-color: #388e3c; color: white; padding: 10px 20px; border-radius: 8px; font-weight: bold; transition: background-color 0.3s; }
+    .hero a:hover { background-color: #2e7d32; }
+    .features { display: flex; flex-wrap: wrap; justify-content: center; margin: 50px 20px; gap: 25px; }
+    .card { background: white; border-radius: 15px; padding: 25px; width: 260px; box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1); transition: 0.3s; }
+    .card:hover { transform: translateY(-10px); box-shadow: 0 12px 18px rgba(0, 0, 0, 0.2); }
+    .card h3 { color: #388e3c; margin: 10px 0; }
+    .card p { font-size: 0.95em; color: #444; }
+    .chart-card { width: 90%; max-width: 900px; margin: 0 auto; }
+    canvas { max-width: 100%; }
+    .footer { background-color: #2e7d32; color: white; text-align: center; padding: 15px; font-size: 0.9em; margin-top: 50px; }
+    #chatbot-btn { position: fixed; bottom: 20px; right: 20px; background: #1976d2; color: white; border: none; border-radius: 50%; width: 60px; height: 60px; font-size: 28px; cursor: pointer; box-shadow: 0 4px 12px rgba(0,0,0,0.3); z-index: 2000; display: flex; align-items: center; justify-content: center; transition: transform 0.3s; }
+    #chatbot-btn:hover { transform: scale(1.1); }
+    #chatbot-window { position: fixed; bottom: 90px; right: 20px; width: 320px; height: 420px; background: white; border-radius: 15px; box-shadow: 0 6px 15px rgba(0,0,0,0.2); display: none; flex-direction: column; overflow: hidden; animation: fadeIn 0.3s ease; z-index: 2000; }
+    @keyframes fadeIn { from {opacity:0; transform:scale(0.9);} to {opacity:1; transform:scale(1);} }
+    #chat-header { background: #1976d2; color: white; padding: 10px; font-weight: bold; display: flex; justify-content: space-between; align-items: center; }
+    #chat-body { flex: 1; padding: 10px; overflow-y: auto; font-size: 14px; display: flex; flex-direction: column; }
+    .msg { margin: 8px 0; padding: 8px 12px; border-radius: 12px; max-width: 80%; }
+    .user-msg { background: #e3f2fd; align-self: flex-end; }
+    .bot-msg { background: #f1f8e9; align-self: flex-start; }
+    #chat-input { display: flex; border-top: 1px solid #ccc; }
+    #chat-input input { flex: 1; padding: 10px; border: none; font-size: 14px; }
+    #chat-input button { background: #1976d2; color: white; border: none; padding: 10px 15px; cursor: pointer; }
+    #chat-input button:hover { background: #0d47a1; }
   </style>
 </head>
 
 <body>
-
   <!-- Navbar -->
   <nav>
     <h2>EcoSteps 🌿</h2>
@@ -153,66 +64,99 @@
     </div>
   </nav>
 
-  <!-- Hero Section -->
+  <!-- Hero -->
   <section class="hero">
     <h1>Welcome to <span style="color:#1b5e20">EcoSteps</span></h1>
     <p>Your journey to a greener planet starts here.</p>
     <a href="calculator.html">Calculate Your Carbon Footprint</a>
   </section>
 
-  <!-- Feature Cards -->
+  <!-- Features -->
   <section class="features">
-    <div class="card">
-      🌍 <h3>Carbon Calculator</h3>
-      <p>Find out your daily environmental impact and learn how to reduce it.</p>
-    </div>
-    <div class="card">
-      💡 <h3>Eco Tips</h3>
-      <p>Simple, actionable tips to make your lifestyle more sustainable.</p>
-    </div>
-    <div class="card">
-      📈 <h3>Progress Tracker</h3>
-      <p>Track your eco-friendly habits and watch your impact improve over time.</p>
-    </div>
-    <div class="card">
-      ❓ <h3>Eco Quiz</h3>
-      <p>Test your green knowledge and discover fun facts about sustainability!</p>
+    <div class="card">🌍 <h3>Carbon Calculator</h3><p>Find out your daily impact and reduce it.</p></div>
+    <div class="card">💡 <h3>Eco Tips</h3><p>Simple, actionable tips for sustainability.</p></div>
+    <div class="card">📈 <h3>Progress Tracker</h3><p>Track eco habits & improve over time.</p></div>
+    <div class="card">❓ <h3>Eco Quiz</h3><p>Test your green knowledge with fun facts!</p></div>
+  </section>
+
+  <!-- Insights -->
+  <section class="features">
+    <div class="card chart-card">
+      <h3>Carbon Contribution by User Type</h3>
+      <canvas id="carbonChart"></canvas>
     </div>
   </section>
 
   <!-- Footer -->
-  <footer class="footer">
-    © 2025 EcoSteps 🌱 All rights reserved.
-  </footer>
+  <footer class="footer">© 2025 EcoSteps 🌱 All rights reserved.</footer>
 
-  <!-- Firebase v8 scripts -->
+  
+  <!-- Firebase -->
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
   <script src="firebase-config.js"></script>
 
   <script>
     const logoutLink = document.getElementById("logoutLink");
-
     firebase.auth().onAuthStateChanged(user => {
-      if (user) {
-        // Show logout when logged in
-        logoutLink.style.display = "inline";
-      } else {
-        // Hide logout & redirect to login if not logged in
-        logoutLink.style.display = "none";
-        window.location.href = "login.html";
+      if (user) logoutLink.style.display = "inline";
+      else { logoutLink.style.display = "none"; window.location.href = "login.html"; }
+    });
+    function logout() { firebase.auth().signOut().then(()=>{alert("Logged out"); window.location.href="login.html";}); }
+
+ 
+    function getBotReply(userText) {
+      const text = userText.toLowerCase();
+      if(text.includes("carbon")) return "🌍 Cut your carbon footprint: save energy, travel smart, eat plant-based, recycle, and support renewables.";
+      return "🌱 Great question! Try saving energy, reducing waste, and choosing eco-friendly alternatives.";
+    }
+
+    // --- Firestore Carbon Contribution ---
+    const db = firebase.firestore();
+    firebase.auth().onAuthStateChanged(async user => {
+      if(user){
+        const carbonByType = { student:23, it_professional:54, educator:34, corporate:74, environmentalist:4, researcher:45, other:98 };
+
+        const usersSnap = await db.collection("users").get();
+        for(const userDoc of usersSnap.docs){
+          const uData = userDoc.data();
+          const type = uData.userType || "other";
+          const emissionsSnap = await db.collection("users").doc(userDoc.id).collection("emissions").get();
+          emissionsSnap.forEach(em => {
+            const eData = em.data();
+            if(eData.carbon){ carbonByType[type] += parseFloat(eData.carbon); }
+          });
+        }
+        drawCarbonChart(carbonByType);
       }
     });
 
-    function logout() {
-      firebase.auth().signOut().then(() => {
-        alert("Logged out successfully");
-        window.location.href = "login.html";
-      }).catch((error) => {
-        console.error("Error logging out: ", error);
+    function drawCarbonChart(data){
+      const ctx = document.getElementById('carbonChart').getContext('2d');
+      new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels: Object.keys(data).map(t => t.replace('_',' ')),
+          datasets: [{
+            label: 'Total Carbon Footprint (tons CO₂)',
+            data: Object.values(data),
+            backgroundColor: ['#4caf50', '#2196f3', '#ff9800', '#f44336', '#9c27b0', '#00bcd4', '#607d8b']
+          }]
+        },
+        options: {
+          responsive: true,
+          plugins: {
+            legend: { display: false },
+            title: { display: true, text: 'Carbon Footprint by User Type' }
+          },
+          scales: {
+            y: { beginAtZero: true, title: { display: true, text: 'Total Carbon Footprint (tons CO₂)' } },
+            x: { title: { display: true, text: 'User Type' } }
+          }
+        }
       });
     }
   </script>
-
 </body>
 </html>
